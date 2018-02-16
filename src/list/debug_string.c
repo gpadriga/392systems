@@ -7,14 +7,14 @@
 */
 void debug_string(struct s_node* head) {
 	while (head->next != NULL) {
-		char* cptr = head->p rev->elem;
+		char* cptr = node->prev->elem;
 		printf("%s", cptr);
 		printf("%s", " <- ");
-		char* cptr2 = head->elem;
-		printf("%s", cptr2);
+		char* cptr = node->elem;
+		printf("%s", cptr);
 		printf("%s", " -> ");
-		char* cptr3 = head->next->elem;
-		printf("%s", cptr3);
+		char* cptr = node->next->elem;
+		printf("%s", cptr);
 		head = head->next;
 	}
-} 
+}

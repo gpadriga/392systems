@@ -18,7 +18,6 @@ void add_node_at(struct s_node* node, struct s_node** head, int n) {
 				if (!cur->next) { // if n is too large
 					cur -> next = node;
 					node->prev = cur;
-					node->next = NULL;
 					return;
 				}
 				cur = cur->next;

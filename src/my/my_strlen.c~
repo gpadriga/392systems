@@ -1,0 +1,13 @@
+#include "my.h"
+
+int my_strlen(char* c) {
+  if (c == '\0') {
+    return -1;
+  }
+  else {
+    int res = 1;
+    while (c != '\0') {
+      
+    }
+  }
+}

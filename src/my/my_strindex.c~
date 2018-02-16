@@ -1,0 +1,13 @@
+#include "my.h"
+
+int my_strindex(char* cptr, char c) {
+  int i =0;
+  while (cptr != '\0') {
+    if (cptr == c) {
+      return i;
+    }
+    cptr++;
+    i++;
+  }
+  return -1;
+}

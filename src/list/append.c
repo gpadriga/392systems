@@ -19,6 +19,7 @@ void append(struct s_node* node, struct s_node** head) {
 		}
 		cur -> next = node;
 		node->prev = cur;
+		// set node->next to null?
 		return;
 	}
 }

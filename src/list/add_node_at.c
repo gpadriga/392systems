@@ -31,6 +31,7 @@ void add_node_at(struct s_node* node, struct s_node** head, int n) {
 	}
 }
 
+/*
 int main() {
 	struct s_node* a = new_node("windows", NULL, NULL);
 	struct s_node* b = new_node("linux", NULL, NULL);
@@ -54,3 +55,4 @@ int main() {
 	debug_string(head);
 	return 0;
 }
+*/

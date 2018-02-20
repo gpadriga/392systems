@@ -6,11 +6,10 @@
 */
 struct s_node* node_at(struct s_node* head, int n) {
 	if (head) {
-		while (head->next) { // can increment head itself since not a double ptr
-			for (int i = 0; i < n; i++) {
-				head = head->next;
-			}
-			return head;
+	    int counter = 0;
+		while (head->next && count < n) { // can increment head itself since not a double ptr
+			counter++;
+			head = head->next;
 		}
 		return head; // returns last elem if n too large
 	}

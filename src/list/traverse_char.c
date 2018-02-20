@@ -4,7 +4,7 @@
 /*
  Prints all the elems as chars separated by a space
 */
-void traverse_int(struct s_node* head) {
+void traverse_char(struct s_node* head) {
 	while (head) {
 		char* ptr = head->elem;
 		my_char(*ptr);

@@ -19,11 +19,3 @@ void add_node(struct s_node* node, struct s_node** head) {
 		}
 	}
 }
-
-// int main() {
-// 	struct s_node* first = new_node("im first", NULL, NULL);
-// 	struct s_node* head = new_node("im the head", NULL, NULL);
-// 	add_node(first, &head);
-// 	debug_string(first);
-// 	return 0;
-// }

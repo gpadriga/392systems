@@ -290,10 +290,39 @@ void test_node_at() {
 	*/
 	printf("%s\n", "before: ");
 	debug_string(*head);
-	print_string(node_at(*head, 0));
+	print_string(node_at(*head, 1));
+	print_string(node_at(*head, 2));
+	print_string(node_at(*head, 3));
+	print_string(node_at(*head, 4));
+	print_string(node_at(*head, 5));
+	print_string(node_at(*head, -1));
+}
+
+void test_elem_at() {
+	/*
+	struct s_node* a = new_node("ah", NULL, NULL);
+
+	struct s_node* b = new_node("beh", NULL, NULL);
+
+	struct s_node* c = new_node("cee", NULL, NULL);
+
+	struct s_node* d = new_node(NULL, NULL, NULL);
+	*/
+	//struct s_node** head;
+	//head = NULL;
+	/*
+	append(c, head);
+	append(b, head);
+	append(a, head);
+	//case where theres only 1 thing in list
+	struct s_node** head;
+	head = &a;
+	*/
+	printf("%s\n", "before: ");
+	printf("%p\n", (elem_at(NULL, 4)));
 }
 
 int main() {
-	test_remove_last();
+	test_elem_at();
 	return 0;
 }

@@ -5,11 +5,7 @@
 */
 void print_string(struct s_node* node) {
 	// What do you do if node is NULL?
-	if (node == NULL) {
-		my_str("NULL\n");
-	}
-	// What do you do if the element is NULL?
-	else if (node->elem == NULL) {
+	if (node == NULL || node->elem == NULL) {
 		my_str("NULL\n");
 	}
 	else {

@@ -7,6 +7,6 @@
 */
 void empty_list(struct s_node** head) {
 	while (head && *head) {
-			remove_last(head);
+			remove_node(head);
 	}
 }

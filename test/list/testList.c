@@ -111,6 +111,7 @@ void test_debug_int() {
 	debug_int(head);
 }
 
+/*
 void test_remove_node() {
 	struct s_node* null_node = NULL;
 	//null node
@@ -138,6 +139,7 @@ void test_remove_node() {
 	printf("%s\n", elem3);
 	debug_string(n1);
 }
+*/
 
 void test() {
 	char c = 'a';
@@ -199,21 +201,13 @@ void test_traverse_int() {
 }
 
 void test_traverse_string() {
-	char x = 'a';
-	char* xptr = &x;
-	struct s_node* a = new_node(xptr, NULL, NULL);
+	struct s_node* a = new_node("ah", NULL, NULL);
 
-	char y = 'b';
-	char* yptr = &y;
-	struct s_node* b = new_node(yptr, NULL, NULL);
+	struct s_node* b = new_node("beh", NULL, NULL);
 
-	char z = 'c';
-	char* zptr = &z;
-	struct s_node* c = new_node(zptr, NULL, NULL);
+	struct s_node* c = new_node("ceh", NULL, NULL);
 
-	char xi = 'd';
-	char* xiptr = &xi;
-	struct s_node* d = new_node(xiptr, NULL, NULL);
+	struct s_node* d = new_node("deh", NULL, NULL);
 
 	struct s_node* head;
 	head = d; // end of list
@@ -224,8 +218,58 @@ void test_traverse_string() {
 	traverse_string(head);
 }
 
+void test_remove_node() {
+	struct s_node* a = new_node("ah", NULL, NULL);
+
+	struct s_node* b = new_node("beh", NULL, NULL);
+
+	struct s_node* c = new_node("ceh", NULL, NULL);
+
+	struct s_node* d = new_node("deh", NULL, NULL);
+
+	struct s_node** head;
+	head = &d; // end of list
+	append(c, head);
+	append(b, head);
+	append(a, head);
+
+	/* case where theres only 1 thing in list
+	struct s_node** head;
+	head = &a;
+	*/
+
+	printf("%s\n", "before: ");
+	debug_string(*head);
+	remove_node(&a);
+	debug_string(*head);
+}
+
+void test_remove_last() {
+	struct s_node* a = new_node("ah", NULL, NULL);
+
+	struct s_node* b = new_node("beh", NULL, NULL);
+
+	struct s_node* c = new_node("ceh", NULL, NULL);
+
+	struct s_node* d = new_node("deh", NULL, NULL);
+
+	struct s_node** head;
+	head = &d; // end of list
+	append(c, head);
+	append(b, head);
+	append(a, head);
+	/*
+	//case where theres only 1 thing in list
+	struct s_node** head;
+	head = &a;
+	*/
+	printf("%s\n", "before: ");
+	debug_string(*head);
+	remove_node_at(head, 3);
+	debug_string(*head);
+}
+
 int main() {
-	test_traverse_char();
-	//test_traverse_int();
+	test_remove_last();
 	return 0;
 }

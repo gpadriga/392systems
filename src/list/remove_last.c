@@ -10,13 +10,7 @@ void* remove_last(struct s_node** head) {
 		while (cur->next){
 			cur = cur->next;
 		}
-		if (cur->prev) {
-			cur->prev->next = NULL;
-			cur->prev = NULL;
-		}
-		void * temp = cur->elem;
-		free(cur);
-		return temp;
+		return remove_node(&cur);
 	}
 	return NULL;
 }

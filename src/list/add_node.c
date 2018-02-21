@@ -1,6 +1,4 @@
 #include "list.h"
-#include <stdio.h>
-#include<stdlib.h>
 
 /*
  Inserts a node at the start of the list. DO NOT add a NULL pointer or

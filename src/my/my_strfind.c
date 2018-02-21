@@ -1,5 +1,4 @@
 #include "my.h"
-#include <stdio.h>
 
 /*
 Returns a pointer to the first char in the string which matches.
@@ -17,12 +16,3 @@ char* my_strfind(char *s, char c) {
 	}
 	return NULL;
 }
-
-/*
-int main() {
-	char test[5] = "hello";
-	char res = *(my_strfind(test, 'l'));
-	my_char(res);
-	return 0;
-}
-*/

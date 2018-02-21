@@ -1,5 +1,4 @@
 #include "my.h"
-#include <stdio.h>
 
 /*
 Compares strings by ascii value for n chars or until end of a string
@@ -39,13 +38,3 @@ int my_strncmp(char *a, char *b, int n) {
 	}
 	else return 1; // b is null
 }
-
-/*
-int main() {
-	char test[6] = "hellox";
-	char test2[5] = "hello";
-	printf("%d", my_strncmp(test, test2, 6));
-	printf("\n");
-	return 0;
-}
-*/

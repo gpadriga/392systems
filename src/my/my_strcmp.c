@@ -1,5 +1,4 @@
 #include "my.h"
-#include <stdio.h>
 
 /*
 Compares strings by ascii value character by character
@@ -41,13 +40,3 @@ int my_strcmp(char *a, char *b) {
 	}
 	else return 1; // b is null
 }
-
-/*
-int main() {
-	char test[6] = "";
-	char test2[5] = "";
-	printf("%d", my_strcmp(test, test2));
-	printf("\n");
-	return 0;
-}
-*/

@@ -1,5 +1,4 @@
 #include "my.h"
-#include <stdio.h>
 
 /* Copies n characters from src into dst
 overwriting what's already in there
@@ -26,17 +25,3 @@ char* my_strncpy(char *dst, char *src, int n) {
 	*dst = '\0';
 	return begin;
 }
-
-/*
-int main() {
-	char *src = NULL;
-	char *dst = NULL;
-	char *res = my_strncpy(dst, src, 5);
-	//my_strncpy(dst, src, 5);
-	printf("%s", dst);
-	printf("\n");
-	printf("%s", res);
-	printf("\n");
-	return 0;
-}
-*/

@@ -1,8 +1,7 @@
 #include "my.h"
 
 /* I pledge my honor that I have abided by the 
-   Stevens Honor System
-/* - Gabrielle Padriga and Jordan Tantuico */
+** Stevens Honor System*/
 
 /**
 Prints an integer to the console. Accepts negatives.

@@ -1,6 +1,4 @@
 #include "list.h"
-#include "my.h"
-#include <stdio.h>
 
 /*
  Prints all the elems as chars separated by a space

@@ -1,5 +1,4 @@
 #include "list.h"
-#include "my.h"
 
 void debug_int(struct s_node* head) {
 	while (head != NULL) {

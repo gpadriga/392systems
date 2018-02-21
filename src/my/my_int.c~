@@ -1,9 +1,0 @@
-#include "my.h"
-
-void my_int(int num) {
-  if (num < 0) {
-    my_char('-');
-  }
-  my_char('0'+ num);
-}
-

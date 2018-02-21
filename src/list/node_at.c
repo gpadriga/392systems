@@ -7,7 +7,7 @@
 struct s_node* node_at(struct s_node* head, int n) {
 	if (head) {
 	    int counter = 0;
-		while (head->next && count < n) { // can increment head itself since not a double ptr
+		while (head->next && counter < n) { // can increment head itself since not a double ptr
 			counter++;
 			head = head->next;
 		}

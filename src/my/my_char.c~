@@ -1,6 +1,0 @@
-#include "my.h"
-
-void my_char(char c)
-{
-
-}

@@ -5,7 +5,7 @@
 
 /*
  What to create
- ~~~~/src/list/*.c
+ ~~~~/src/list/.c
  ~~~~/include/list.h
  ~~~~/lib/liblist.a
  ~~~~/test/testlist.c

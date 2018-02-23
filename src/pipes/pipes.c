@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <sys/wait.h>
+#include "my.h"
 
 /*
 need to import my library to print and add my_vect2str.c
@@ -25,7 +26,7 @@ char forward(char c) {
 
 int main(int argc, char *argv[]) { // take in cmd line args
 	if (argc <= 1) {
-		my_str("Usage: ./pipes message");
+		my_str("Usage: ./pipes message\n");
 		return 1;
 	}
 
@@ -44,6 +45,7 @@ int main(int argc, char *argv[]) { // take in cmd line args
 		gpid = fork();
 		pipe(gchild);
 		*/
+	}
 	else { // parent process
 		// send cmd line args as a string to child
 	}

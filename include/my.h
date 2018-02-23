@@ -1,4 +1,7 @@
 /* Header for libmy (Part 2) assignment. */ 
+
+// Updated on 2/23/2018 to add support for pipes assignment
+
 #ifndef _MY_H_ 
 #define _MY_H_
 
@@ -33,5 +36,8 @@ char* my_strdup(char* str);
 char* my_strconcat(char* a, char* b);
 char* my_strnconcat(char* a, char* b, int n);
 int my_atoi(char* n);
+
+// method declaration for pipes
+char *my_vect2str(char **x);
 
 #endif

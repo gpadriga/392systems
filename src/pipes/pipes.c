@@ -3,6 +3,10 @@
 #include <stdlib.h>
 #include <sys/wait.h>
 
+/*
+need to import my library to print and add my_vect2str.c
+*/
+
 char forward(char c) {
 	if (c == 'Z') {
 		c = 'A';
@@ -10,7 +14,7 @@ char forward(char c) {
 	else if (c == 'z') {
 		c = 'a';
 	}
-	else if (c<101 || c>172) {
+	else if (c < 101 || c > 172) { // c is a non letter
 		return c;
 	}
 	else {
@@ -35,6 +39,20 @@ char rev(char c) {
 	return c;
 }
 
-int main() {
+int main(int argc, char *argv[]) { // take in cmd line args
+	pid_t pid;
+	int parent[2];
+	int child[2];
+	int gchild[2];
+	pipe(parent);
+	pipe(child);
+
+	if ( (pid = fork()) < 0) {
+		perror("fork didnt work"), exit(1);
+	} else if (pid == 0) { // child
+		pipe(gchild);
+	else {
+
+	}
 	return 0;
 }

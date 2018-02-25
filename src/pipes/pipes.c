@@ -34,10 +34,12 @@ int main(int argc, char *argv[]) { // take in cmd line args
 
 	if ( (pid = fork()) < 0) {
 		perror("Child fork didn't work\n"), exit(1);
+		return 1;
 	} else if (pid == 0) { // child process
 		pid_t gpid;
 		if ( (gpid = fork()) < 0) {
 			perror("Grandchild fork didn't work\n"), exit(1);
+			return 1;
 		}
 		else if (gpid == 0) { // gchild
 			close(child[1]); // don't write to child here

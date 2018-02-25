@@ -45,9 +45,9 @@ int main(int argc, char *argv[]) { // take in cmd line args
 			close(child[1]); // don't write to child here
 			// read string from child
 			char cin[100] = "";
-			while (read(child[0], cin, 100) > 0) {
-				my_revstr(cin);
-			}
+			read(child[0], cin, 100);
+			// reverse string
+			my_revstr(cin);
 			my_str(cin);
 			my_char('\n');
 			exit(0);
@@ -57,21 +57,22 @@ int main(int argc, char *argv[]) { // take in cmd line args
 			close(parent[1]); // don't write to parent here
 			read(parent[0], pin, 100);
 			char res[100] = "";
-			write(child[1], pin, 100);
 			for (int i = 0; i < my_strlen(pin); i++) {
 				res[i] = forward(pin[i]);
 			}
 			my_str(res);
 			my_char('\n');
+			write(child[1], pin, 100);
+			wait(NULL);
 			exit(0);
 		}
 	}
 	else { // parent process
 		close(parent[0]);
 		// convert cmd line args to string using vect2str
-		//char* input = vect2str(&argv);
+		char* input = my_vect2str(&argv[1]);
 		// send strings to child
-		write(parent[1], argv[1], 100);
+		write(parent[1], input, 100);
 		wait(NULL);
 		exit(0);
 	}

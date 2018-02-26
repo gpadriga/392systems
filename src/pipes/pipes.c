@@ -48,6 +48,7 @@ int main(int argc, char *argv[]) { // take in cmd line args
 			read(child[0], cin, 100);
 			// reverse string
 			my_revstr(cin);
+			my_str("Grandchild: ");
 			my_str(cin);
 			my_char('\n');
 			exit(0);
@@ -60,6 +61,7 @@ int main(int argc, char *argv[]) { // take in cmd line args
 			for (int i = 0; i < my_strlen(pin); i++) {
 				res[i] = forward(pin[i]);
 			}
+			my_str("Child: ");
 			my_str(res);
 			my_char('\n');
 			write(child[1], pin, 100);
@@ -72,6 +74,9 @@ int main(int argc, char *argv[]) { // take in cmd line args
 		// convert cmd line args to string using vect2str
 		char* input = my_vect2str(&argv[1]);
 		// send strings to child
+		my_str("Parent: ");
+		my_str(input);
+		my_char('\n');
 		write(parent[1], input, 100);
 		wait(NULL);
 		exit(0);

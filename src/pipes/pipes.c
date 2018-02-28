@@ -5,14 +5,14 @@
 #include "my.h"
 
 char forward(char c) {
-	if (c == 'Z') {
+	if (c < 65 || (c > 90 && c < 97) || c > 122) { // c is a non letter
+		return c;
+	}
+	else if (c == 'Z') {
 		c = 'A';
 	}
 	else if (c == 'z') {
 		c = 'a';
-	}
-	else if (c < 65 || (c > 90 && c < 97) || c > 122) { // c is a non letter
-		return c;
 	}
 	else {
 		c++;

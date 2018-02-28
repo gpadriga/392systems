@@ -11,7 +11,7 @@ char forward(char c) {
 	else if (c == 'z') {
 		c = 'a';
 	}
-	else if (c < 65 || c > 123) { // c is a non letter
+	else if (c < 65 || (c > 90 && c < 97) || c > 122) { // c is a non letter
 		return c;
 	}
 	else {

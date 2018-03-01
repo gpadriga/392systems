@@ -4,15 +4,23 @@
 #include <sys/wait.h>
 #include <signal.h>
 
-static int intR = 0;
+static pid_t pid;
+static int c = 0;
+static int cTog = 0;
 
 void sigStpHandler(int sig) {
-	kill(0, SIGUSR1);
+	kill(pid, SIGUSR1);
+	alarm(10);
 }
 
 void sigIntHandler(int sig) {
-	intR = 1;
-	kill(0, SIGUSR2);
+	kill(pid, SIGUSR2);
+	cTog = 0? 1 : 0;
+}
+
+void alarmHandler(int sig) {
+	printf("%s\n", "Time's up");
+	exit(0);
 }
 
 void rec1(int sig) {
@@ -21,28 +29,42 @@ void rec1(int sig) {
 
 void rec2(int sig) {
 	printf("%s\n", "Child exiting...");
+	c = 1;
+	exit(0);
+}
+
+void doNone(int sig) {
+
 }
 
 int main() {
-	pid_t pid;
 	if ( (pid = fork()) < 0) {
 		perror("Child fork didn't work\n"), exit(1);
 		return 1;
 	} else if (pid == 0) { // child process
-		signal(SIGINT, NULL);
-		signal(SIGTSTP, NULL);
-		signal(SIGUSR1, rec1);
-		pause();
+		signal(SIGINT, doNone); // set SIGINT to do nothing
+		signal(SIGTSTP, doNone); // set SIGTSTP to do nothing
+		signal(SIGUSR1, rec1); // when SIGUSR1 recieved, print so
 		signal(SIGUSR2, rec2);
-		exit(0);
+		while (1) {
+			pause(); // wait for next sig
+		}
 	}
 	else { // parent 
 		signal(SIGTSTP, sigStpHandler);
-		pause();
-		while (intR == 0);
+		signal(SIGALRM, alarmHandler);
 		signal(SIGINT, sigIntHandler);
-		wait(NULL); // wait for child to kill itself
-		printf("%s\n", "Goodbye!");
-		exit(0);
+		signal(SIGUSR1, doNone);
+		signal(SIGUSR2, doNone);
+		while (1) {
+			pause();
+			wait(NULL); // wait for child to kill itself
+			pause();
+			if (c = 1 && cTog == 0) {
+				printf("%s\n", "Goodbye!");
+				exit(0);
+			}	
+		}
 	}
+	return 0;
 }

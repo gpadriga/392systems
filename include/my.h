@@ -40,4 +40,7 @@ int my_atoi(char* n);
 // method declaration for pipes
 char *my_vect2str(char **x);
 
+// for minishell
+char **my_str2vect(char* str);
+
 #endif

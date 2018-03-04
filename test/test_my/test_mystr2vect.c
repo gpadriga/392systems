@@ -39,6 +39,11 @@ void empty() {
 	}
 }
 
+void whyarewestilldoingmy()  {
+	char* list[] = {"hello", "bye", NULL};
+	printf("%d\n", my_vectsize(list));
+}
+
 int main() {
 	// char** array = my_str2vect("Hello world");
 	// printf("%s\n", array[0]);
@@ -51,6 +56,7 @@ int main() {
 	// }
 	//shakespeare();
 	//null();
-	empty();
+	//empty();
+	whyarewestilldoingmy();
 	return 0;
 }

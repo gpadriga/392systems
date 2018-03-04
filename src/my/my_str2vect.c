@@ -1,5 +1,4 @@
 #include "my.h"
-#include <stdio.h>
 
 char** my_str2vect(char* str) {
 	if (str) {

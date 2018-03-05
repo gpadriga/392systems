@@ -7,18 +7,12 @@
 
 /*	Gabrielle Padriga and Jordan Tantuico
 	We pledge our honor that we have abided by the Stevens Honor System
-Things that may be useful:
-	int chdir (const char *path) : changes current working directory
-	char* get_current_dir_name(void) : self explanatory, for debugging
-	int execvp (const char *file, char *const argv[]) : created child
-		process does not have to run the same program as the parent process
-		does. The exec type system calls allow a process to run any program files,
-		which include a binary executable or a shell script
-		file: points to the file name associated with the file being executed.
-		argv:  is a null terminated array of character pointers.
 */
 
 void doNothing(int n) { }
+void doQuit(int n) {
+	exit(1);
+}
 
 int main() {
 	// signals definition
@@ -46,9 +40,7 @@ int main() {
 			seen++;
 			read(0, input, 1);
 		}
-		//my_str("this is what's in our directions string: ");
-		//my_str(begin);
-		//my_str("\n");
+
 		char ** dir = my_str2vect(begin);
 		int sizeDir = my_vectsize(dir);
 
@@ -61,25 +53,6 @@ int main() {
 		else if (my_strcmp(dir[0], "cd") == 0) { // cd somepath
 			if (chdir(dir[1]) == -1) {
 				my_str("Either that directory doesn't exist, or you're not allowed to access it\n");
-			}
-		}
-
-		// ls command
-		else if (my_strcmp(dir[0], "ls") == 0 && sizeDir == 1) {
-			pid_t pid;
-			if ((pid = fork()) < 0) {
-				perror("Child fork didn't work\n"), exit(1);
-			}
-			else if (pid == 0) { // child process
-				const char* cmd = "ls";
-				char *arr[2];
-				arr[0]= "ls";
-				arr[1]= NULL;
-				execvp(cmd,arr);
-				exit(0);
-			}
-			else { // parent
-				wait(NULL);
 			}
 		}
 
@@ -99,43 +72,25 @@ int main() {
 			return 1;
 		}
 
-		// exec function
-		else if (my_strcmp(dir[0], "./idunnoyet") == 0) { // I dunno how we're gonna implement this {
-			//use execvp and str2vect to pass args
-			// fork before execvp
+		// no command matches or trying to exec or ls
+		else {
 			pid_t pid;
 			if ((pid = fork()) < 0) {
 				perror("Child fork didn't work\n"), exit(1);
 			}
 			else if (pid == 0) { // child process
-
+				signal(SIGINT, doQuit);
+				if (execvp(dir[0], dir) == -1) {
+					my_str("Can't do that\n");
+					exit(1);
+				}
+				else {
+					exit(1);
+				}
+			}
+			else { // parent
+				wait(NULL);
 			}
 		}
-
-		// no command matches or trying to exec
-		else {
-			char ** cmnds = (dir)++; // how to cut off first word in vector?
-			my_str(cmnds[0]);
-			if (execvp(dir[0], cmnds) == -1) {
-				my_str("Ya can't do that!\n");
-			}
-		}
-		/* we don't need to worry about memory freeing apparently
-		for (int i = 0; i < sizeDir; i++) {
-			my_str(dir[i]);
-			my_str(" ");
-		}
-		for (int i = 0; i <= sizeDir; i++) {
-			printf("%s\n", "freeing ");
-			printf("%d\n", i);
-			free(dir[i]);
-		}
-		*/
-		/*
-		free(dir);
-		free(begin);
-		free(input);
-		free(newInput);
-		*/
 	}
 }

@@ -28,6 +28,32 @@ int main(int argc, char *argv[])
        exit(0);
     }
     portno = my_atoi(argv[2]);
+
+    // Prompts the user for a username
+    char username[256];
+    int isValid = 0;
+    // Username cannot be empty
+    while(isValid == 0) {
+        my_str("Please enter a username: ");
+        bzero(username, 256);
+        read(0, username, 255);
+        // Sets the new line character to a null terminator
+        username[my_strlen(username) - 1] = '\0';
+        if (my_strlen(username) == 0) {
+            isValid = 0;
+            my_str("Your username is invalid.\n");
+        }
+        else {
+            isValid = 1;
+        }
+        my_str("The length of your username is: ");
+        my_int(my_strlen(username));
+        my_char('\n');
+    }
+    my_str("Your username is: ");
+    my_str(username);
+    my_char('\n');
+
     // Creates the socket
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0) 
@@ -61,8 +87,7 @@ int main(int argc, char *argv[])
 
         // Sends a message to the server
         n = write(sockfd,buffer,my_strlen(buffer));
-        if (n < 0) 
-             error("ERROR writing to socket");
+        if (n < 0) error("ERROR writing to socket");
         bzero(buffer,256);
 
         // Receives confirmation from the server that message was received

@@ -41,6 +41,9 @@ int main() {
 			read(0, input, 1);
 		}
 
+		my_str(begin);
+		my_str("\n");
+
 		char ** dir = my_str2vect(begin);
 		int sizeDir = my_vectsize(dir);
 

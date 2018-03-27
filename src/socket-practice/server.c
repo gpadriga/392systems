@@ -19,7 +19,8 @@ int main(int argc, char *argv[])
 {
     int sockfd, newsockfd, portno;
     socklen_t clilen;
-    char buffer[256];
+    char buffer[1024];
+    char username[1024];
     struct sockaddr_in serv_addr, cli_addr;
     int n;
     // Usage case
@@ -49,19 +50,26 @@ int main(int argc, char *argv[])
                 &clilen);
     if (newsockfd < 0) 
         error("Arrrrgh! There was an error on accepting!");
+
+    // Accepts the new user's username
+    bzero(username,1024);
+    n = read(newsockfd, username, 1023);
+
     // Indicates new user has joined
-    my_str("A new landlubber has hopped aboard!\n");
+    my_str("A new landlubber has hopped aboard! It's name is ");
+    my_str(username);
+    my_str(".\n");
 
     // Sends welcome message
-    bzero(buffer, 256);
+    bzero(buffer, 1024);
     n = write(newsockfd,"Ahoy, matey! Welcome aboard the Flying Dutchman!",48);
     if (n < 0) error("Arrrrgh! There was an error writing!");
 
     // Endless messaging
     while(1) {
-        bzero(buffer,256);
+        bzero(buffer,1024);
         // Reads a message from the client
-        n = read(newsockfd,buffer,255);
+        n = read(newsockfd,buffer,1023);
         if (n < 0) error("Arrrrgh! There was an error from reading!");
         my_str("Thar be the message: ");
         my_str(buffer);
@@ -73,7 +81,7 @@ int main(int argc, char *argv[])
     }
 
     // Sends farewell message
-    bzero(buffer, 256);
+    bzero(buffer, 1024);
     n = write(newsockfd,"It's time for ye to walk the plank!",35);
     if (n < 0) error("Arrrrgh! There was an error writing!");
 

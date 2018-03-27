@@ -7,6 +7,8 @@ void shakespeare() {
 	The more I have, for both are infinite.");
 	for (int i = 0; i < 26; i++) {
 		printf("%s\n", list[i]);
+		char* temp = list[i];
+		free(temp);
 	}
 	if (list[26] == NULL) {
 		printf("It's null\n");
@@ -54,9 +56,9 @@ int main() {
 	// else {
 	// 	printf("not null\n");
 	// }
-	//shakespeare();
+	shakespeare();
 	//null();
 	//empty();
-	whyarewestilldoingmy();
+	//whyarewestilldoingmy();
 	return 0;
 }

@@ -37,9 +37,8 @@ char** my_str2vect(char* str) {
 			//printf("%s\n", "we get before my_strncpy");
 			//printf("%s\n", str);
 			
-			char* element = (char*) malloc((lcount+1) * sizeof(char));
-			my_strncpy(element, str, lcount);
-			vect[i] = element;
+			vect[i] = (char*) malloc((lcount+1) * sizeof(char));
+			my_strncpy(vect[i], str, lcount);
 
 			//printf("%s\n", vect[i]);
 			str = temp;

@@ -44,4 +44,7 @@ char *my_vect2str(char **x);
 char **my_str2vect(char* str);
 int my_vectsize(char** vect);
 
+// sockettalk additions
+void my_rmws(char *name);
+
 #endif

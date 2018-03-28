@@ -264,17 +264,19 @@ int main (int argc, char *argv[])
           printf("  %d bytes received\n", len);
 
           /*****************************************************/
-          /* Echo the data back to the client                  */
+          /* Echo the data back to the clients                 */
           /*****************************************************/
-          rc = send(fds[i].fd, buffer, len, 0);
-          if (rc < 0)
-          {
-            perror("  send() failed");
-            close_conn = TRUE;
-            break;
+          for (int j=1;j<nfds;j++) {
+            rc = send(fds[j].fd, buffer, len, 0);
+            if (rc < 0)
+            {
+              perror("  send() failed");
+              close_conn = TRUE;
+              break;
+            }
           }
-
-        } while(TRUE);
+          bzero(buffer, 80);
+        } while(1==2);
 
         /*******************************************************/
         /* If the close_conn flag was turned on, we need       */

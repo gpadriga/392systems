@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
             n = read(sockfd,cbuffer, 1023);
             if (n < 0) 
                  error("ERROR reading from socket");
-            printf("%s\n", cbuffer);
+            printf("%s", cbuffer);
         }
     }
     else { // parent writes terminal input to server

@@ -24,7 +24,9 @@ int main (int argc, char *argv[])
   char   buffer[80];
   struct sockaddr_in   addr;
   int    timeout;
-  struct pollfd fds[200];
+  //struct pollfd fds[2];
+  struct pollfd* fds = (struct pollfd*)malloc(sizeof(struct pollfd) * 1);
+  int    fdsSize = 1;
   int    nfds = 1, current_size = 0, i, j;
 
   /*************************************************************/
@@ -94,7 +96,7 @@ int main (int argc, char *argv[])
   /*************************************************************/
   /* Initialize the pollfd structure                           */
   /*************************************************************/
-  memset(fds, 0 , sizeof(fds));
+  memset(fds, 0 , sizeof(*fds));
 
   /*************************************************************/
   /* Set up the initial listening socket                        */
@@ -202,6 +204,10 @@ int main (int argc, char *argv[])
           /* pollfd structure                                  */
           /*****************************************************/
           printf("  New incoming connection - %d\n", new_sd);
+          if (nfds+1 > fdsSize) {
+            fdsSize *= 2;
+            fds = (struct pollfd*) realloc(fds, fdsSize*sizeof(struct pollfd));
+          }
           fds[nfds].fd = new_sd;
           fds[nfds].events = POLLIN;
           nfds++;

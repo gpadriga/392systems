@@ -22,11 +22,14 @@ int main (int argc, char *argv[])
   int    end_server = FALSE, compress_array = FALSE;
   //int desc_ready;
   int    close_conn;
-  char   buffer[80];
+  // Buffer to read data from clients
+  char   read[1024];
+  // Buffer to send data to clients
+  char   bigboi[2050];
   struct sockaddr_in   addr;
   int    timeout;
   //struct pollfd fds[2];
-  struct pollfd* fds = (struct pollfd*)malloc(sizeof(struct pollfd) * 1);
+  struct pollfd* fds = (struct pollfd*)malloc(sizeof(struct pollfd) * 10);
   struct s_node* server = new_node("server",NULL, NULL); // server name node
   struct s_node** lhead = &server; // ref to start of list
   int    fdsSize = 1;
@@ -111,7 +114,7 @@ int main (int argc, char *argv[])
   /* activity after 3 minutes this program will end.           */
   /* timeout value is based on milliseconds.                   */
   /*************************************************************/
-  timeout = (3 * 60 * 1000);
+  timeout = -1;
 
   /*************************************************************/
   /* Loop waiting for incoming connects or for incoming data   */
@@ -216,13 +219,20 @@ int main (int argc, char *argv[])
           nfds++;
 
           // read username from newest connection
-          rc = recv(fds[i].fd, buffer, sizeof(buffer), 0);
+          bzero(read,1024);
+          rc = recv(new_sd, read, sizeof(read), 0);
           if (rc < 0) {
             if (errno != EWOULDBLOCK) {
               perror("username recv() failed");
               close_conn = TRUE;
             }
           }
+
+          // Add the username to list of usernames
+          char* name = my_strdup(read);
+          struct s_node* username = new_node(name, NULL, NULL);
+          print_string(username);
+          append(username, lhead);
 
           /*****************************************************/
           /* Loop back up and accept another incoming          */
@@ -253,7 +263,7 @@ int main (int argc, char *argv[])
           /* failure occurs, we will close the                 */
           /* connection.                                       */
           /*****************************************************/
-          rc = recv(fds[i].fd, buffer, sizeof(buffer), 0);
+          rc = recv(fds[i].fd, read, sizeof(read), 0);
           if (rc < 0)
           {
             if (errno != EWOULDBLOCK)
@@ -284,8 +294,21 @@ int main (int argc, char *argv[])
           /*****************************************************/
           /* Echo the data back to the clients                 */
           /*****************************************************/
+
+          // Get the username of the person sending the message
+          char* un = (char *) elem_at(*lhead, i);
+          printf("%s\n", un);
+          bzero(bigboi, 2050);
+          // Append the username, colon, space, and message in one string
+          my_strcat(bigboi, un);
+          //printf("%s\n", bigboi);
+          my_strcat(bigboi, ": ");
+          //printf("%s\n", bigboi);
+          my_strcat(bigboi, read);
+          printf("%s\n", bigboi);
+
           for (int j=1;j<nfds;j++) {
-            rc = send(fds[j].fd, buffer, len, 0);
+            rc = send(fds[j].fd, bigboi, my_strlen(bigboi), 0);
             if (rc < 0)
             {
               perror("  send() failed");
@@ -293,7 +316,7 @@ int main (int argc, char *argv[])
               break;
             }
           }
-          bzero(buffer, 80);
+          bzero(bigboi, 2050);
         } while(1==2);
 
         /*******************************************************/

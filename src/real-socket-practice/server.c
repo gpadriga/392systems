@@ -19,9 +19,9 @@ int main (int argc, char *argv[])
 {
   int    len, rc, on = 1;
   int    listen_sd = -1, new_sd = -1;
-  int    end_server = FALSE, compress_array = FALSE;
+  int    end_server = FALSE; //compress_array = FALSE;
   //int desc_ready;
-  int    close_conn;
+  //int    close_conn;
   // Buffer to read data from clients
   char   read[1024];
   // Buffer to send data to clients
@@ -160,12 +160,13 @@ int main (int argc, char *argv[])
       /* or the active connection.                             */
       /*********************************************************/
       if(fds[i].revents == 0)
-        continue;
+        continue; // nothing intersting on this fd
 
-      /*********************************************************/
-      /* If revents is not POLLIN, it's an unexpected result,  */
-      /* log and end the server.                               */
-      /*********************************************************/
+      /**
+      *********************************************************
+      * If revents is not POLLIN, it's an unexpected result,  *
+      * log and end the server.                               *
+      *********************************************************
       if(fds[i].revents != POLLIN)
       {
         printf("  Error! revents = %d\n", fds[i].revents);
@@ -173,6 +174,8 @@ int main (int argc, char *argv[])
         break;
 
       }
+      **/
+
       if (fds[i].fd == listen_sd)
       {
         /*******************************************************/
@@ -224,7 +227,7 @@ int main (int argc, char *argv[])
           if (rc < 0) {
             if (errno != EWOULDBLOCK) {
               perror("username recv() failed");
-              close_conn = TRUE;
+              //close_conn = TRUE;
             }
           }
 
@@ -249,7 +252,7 @@ int main (int argc, char *argv[])
       else
       {
         printf("  Descriptor %d is readable\n", fds[i].fd);
-        close_conn = FALSE;
+        //close_conn = FALSE;
         /*******************************************************/
         /* Receive all incoming data on this socket            */
         /* before we loop back and call poll again.            */
@@ -270,7 +273,7 @@ int main (int argc, char *argv[])
             if (errno != EWOULDBLOCK)
             {
               perror("  recv() failed");
-              close_conn = TRUE;
+              //close_conn = TRUE;
             }
             break;
           }
@@ -282,7 +285,7 @@ int main (int argc, char *argv[])
           if (rc == 0)
           {
             printf("  Connection closed\n");
-            close_conn = TRUE;
+            //close_conn = TRUE;
             break;
           }
 
@@ -295,55 +298,81 @@ int main (int argc, char *argv[])
           /*****************************************************/
           /* Echo the data back to the clients                 */
           /*****************************************************/
+          //if (/un) {
+          //
+          //}
 
-          // Get the username of the person sending the message
-          char* un = (char *) elem_at(*lhead, i);
-          printf("This is the sending un:%s\n", un);
-          bzero(bigboi, 2050);
-          // Append the username, colon, space, and message in one string
-          my_strcat(bigboi, un);
-          //printf("%s\n", bigboi);
-          my_strcat(bigboi, ": ");
-          //printf("%s\n", bigboi);
-          my_strcat(bigboi, read);
-          printf("%s\n", bigboi);
-
-          for (int j=1;j<nfds;j++) {
-            rc = send(fds[j].fd, bigboi, my_strlen(bigboi), 0);
-            if (rc < 0)
+          if (my_strcmp("/exit\n", read) == 0) { // /exit case
+            close(fds[i].fd);
+            //remove from llist
+            remove_node_at(lhead, i);
+            // remove from fds
+            fds[i].fd = -1;
+            for (i = 0; i < nfds; i++)
             {
-              perror("  send() failed");
-              close_conn = TRUE;
-              break;
+              if (fds[i].fd == -1)
+              {
+                for(j = i; j < nfds; j++)
+                {
+                  fds[j].fd = fds[j+1].fd;
+                }
+                i--;
+                nfds--;
+              }
             }
           }
-          bzero(bigboi, 2050);
+
+          else { // no special commands, just send as [un]: [message]
+            // Get the username of the person sending the message
+            char* un = (char *) elem_at(*lhead, i);
+            printf("This is the sending un:%s\n", un);
+            bzero(bigboi, 2050);
+            // Append the username, colon, space, and message in one string
+            my_strcat(bigboi, un);
+            //printf("%s\n", bigboi);
+            my_strcat(bigboi, ": ");
+            //printf("%s\n", bigboi);
+            my_strcat(bigboi, read);
+            printf("%s\n", bigboi);
+
+            for (int j=1;j<nfds;j++) {
+              rc = send(fds[j].fd, bigboi, my_strlen(bigboi), 0);
+              if (rc < 0)
+              {
+                perror("  send() failed");
+                break;
+              }
+            }
+            bzero(bigboi, 2050);
+          }
         } while(1==2);
 
-        /*******************************************************/
-        /* If the close_conn flag was turned on, we need       */
-        /* to clean up this active connection. This            */
-        /* clean up process includes removing the              */
-        /* descriptor.                                         */
-        /*******************************************************/
+        /**
+        *******************************************************
+        * If the close_conn flag was turned on, we need       *
+        * to clean up this active connection. This            *
+        * clean up process includes removing the              *
+        * descriptor.                                         *
+        *******************************************************
         if (close_conn)
         {
           close(fds[i].fd);
           fds[i].fd = -1;
           compress_array = TRUE;
         }
-
+        **/
 
       }  /* End of existing connection is readable             */
     } /* End of loop through pollable descriptors              */
 
-    /***********************************************************/
-    /* If the compress_array flag was turned on, we need       */
-    /* to squeeze together the array and decrement the number  */
-    /* of file descriptors. We do not need to move back the    */
-    /* events and revents fields because the events will always*/
-    /* be POLLIN in this case, and revents is output.          */
-    /***********************************************************/
+    /**
+    ***********************************************************
+    * If the compress_array flag was turned on, we need       *
+    * to squeeze together the array and decrement the number  *
+    * of file descriptors. We do not need to move back the    *
+    * events and revents fields because the events will always*
+    * be POLLIN in this case, and revents is output.          *
+    ***********************************************************
     if (compress_array)
     {
       compress_array = FALSE;
@@ -360,6 +389,7 @@ int main (int argc, char *argv[])
         }
       }
     }
+    **/
 
   } while (end_server == FALSE); /* End of serving running.    */
 

@@ -263,7 +263,8 @@ int main (int argc, char *argv[])
           /* failure occurs, we will close the                 */
           /* connection.                                       */
           /*****************************************************/
-          rc = recv(fds[i].fd, read, sizeof(read), 0);
+          bzero(read,1024);
+          rc = recv(fds[i].fd, read, 1024, 0);
           if (rc < 0)
           {
             if (errno != EWOULDBLOCK)

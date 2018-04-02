@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
             n = write(sockfd, pbuffer,strlen(pbuffer));
             if (n < 0) 
                  error("ERROR writing to socket");
-             bzero(pbuffer, 1024);
+            bzero(pbuffer, 1024);
         }
     }
     close(sockfd);

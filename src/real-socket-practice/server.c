@@ -298,7 +298,7 @@ int main (int argc, char *argv[])
 
           // Get the username of the person sending the message
           char* un = (char *) elem_at(*lhead, i);
-          printf("%s\n", un);
+          printf("This is the sending un:%s\n", un);
           bzero(bigboi, 2050);
           // Append the username, colon, space, and message in one string
           my_strcat(bigboi, un);

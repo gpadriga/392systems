@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
     struct hostent *server;
     pid_t pid;
 
-    char cbuffer[1024];
+    char cbuffer[2050];
     char pbuffer[1024];
     if (argc < 3) {
        fprintf(stderr,"usage %s hostname port\n", argv[0]);
@@ -74,11 +74,12 @@ int main(int argc, char *argv[])
         return 1;
     } else if (pid == 0) { // child listens and writes to terminal
         while(1) {
-            bzero(cbuffer, 1024);
-            n = read(sockfd,cbuffer, 1023);
+            bzero(cbuffer, 2050);
+            n = read(sockfd,cbuffer, 2049);
             if (n < 0) 
                  error("ERROR reading from socket");
             printf("%s", cbuffer);
+            bzero(cbuffer, 2050);
         }
     }
     else { // parent writes terminal input to server
@@ -88,6 +89,7 @@ int main(int argc, char *argv[])
             n = write(sockfd, pbuffer,strlen(pbuffer));
             if (n < 0) 
                  error("ERROR writing to socket");
+             bzero(pbuffer, 1024);
         }
     }
     close(sockfd);

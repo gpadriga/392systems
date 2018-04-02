@@ -6,6 +6,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h> 
+#include "my.h"
 
 void error(const char *msg)
 {
@@ -43,6 +44,30 @@ int main(int argc, char *argv[])
     serv_addr.sin_port = htons(portno);
     if (connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0) 
         error("ERROR connecting");
+
+     // Prompts the user for a username
+    char username[1024];
+    int isValid = 0;
+    // Username cannot be empty
+    while(isValid == 0) {
+        my_str("Please enter a username: ");
+        bzero(username, 1024);
+        read(0, username, 1023);
+        // Compress all the white space in a username
+        my_rmws(username);
+        if (my_strlen(username) == 0) {
+            isValid = 0;
+            my_str("Your username is invalid.\n");
+        }
+        else {
+            isValid = 1;
+        }
+    }
+
+    // before any messaging we need to send username
+    n = write(sockfd, username,strlen(username));
+    if (n < 0) 
+        error("ERROR writing username to socket");
 
     if ( (pid = fork()) < 0) {
         perror("Child fork didn't work\n"), exit(1);

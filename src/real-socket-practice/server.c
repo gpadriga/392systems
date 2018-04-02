@@ -8,6 +8,7 @@
 #include <errno.h>
 #include <unistd.h>
 #include <string.h>
+#include "list.h"
 
 #define SERVER_PORT  12345
 
@@ -26,6 +27,8 @@ int main (int argc, char *argv[])
   int    timeout;
   //struct pollfd fds[2];
   struct pollfd* fds = (struct pollfd*)malloc(sizeof(struct pollfd) * 1);
+  struct s_node* server = new_node("server",NULL, NULL); // server name node
+  struct s_node** lhead = &server; // ref to start of list
   int    fdsSize = 1;
   int    nfds = 1, current_size = 0, i, j;
 
@@ -211,6 +214,15 @@ int main (int argc, char *argv[])
           fds[nfds].fd = new_sd;
           fds[nfds].events = POLLIN;
           nfds++;
+
+          // read username from newest connection
+          rc = recv(fds[i].fd, buffer, sizeof(buffer), 0);
+          if (rc < 0) {
+            if (errno != EWOULDBLOCK) {
+              perror("username recv() failed");
+              close_conn = TRUE;
+            }
+          }
 
           /*****************************************************/
           /* Loop back up and accept another incoming          */

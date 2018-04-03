@@ -10,7 +10,7 @@
 #include <string.h>
 #include "list.h"
 
-#define SERVER_PORT  12345
+//#define SERVER_PORT  12345
 
 #define TRUE             1
 #define FALSE            0
@@ -19,21 +19,21 @@ int main (int argc, char *argv[])
 {
   int    len, rc, on = 1;
   int    listen_sd = -1, new_sd = -1;
-  int    end_server = FALSE; //compress_array = FALSE;
-  //int desc_ready;
-  //int    close_conn;
-  // Buffer to read data from clients
+  int    end_server = FALSE;
   char   read[1024];
-  // Buffer to send data to clients
-  char   bigboi[2050];
+  char   bigboi[2050]; // 1024 + ": " + 1024
   struct sockaddr_in   addr;
   int    timeout;
-  //struct pollfd fds[2];
   struct pollfd* fds = (struct pollfd*)malloc(sizeof(struct pollfd) * 10);
   struct s_node* server = new_node("server",NULL, NULL); // server name node
   struct s_node** lhead = &server; // ref to start of list
   int    fdsSize = 1;
   int    nfds = 1, current_size = 0, i, j;
+
+  if (argc != 2) {
+    perror("Usage: /server [portNo]");
+    exit(1);
+  }
 
   /*************************************************************/
   /* Create an AF_INET6 stream socket to receive incoming      */
@@ -74,11 +74,9 @@ int main (int argc, char *argv[])
   /*************************************************************/
   /* Bind the socket                                           */
   /*************************************************************/
-  //memset(&addr, 0, sizeof(addr));
   addr.sin_family      = AF_INET;
-  //memcpy(&addr.sin_addr, &inaddr_any, sizeof(in6addr_any));
   addr.sin_addr.s_addr = INADDR_ANY;
-  addr.sin_port        = htons(SERVER_PORT);
+  addr.sin_port        = htons(atoi(argv[1]));
   rc = bind(listen_sd,
             (struct sockaddr *)&addr, sizeof(addr));
   if (rc < 0)
@@ -125,7 +123,7 @@ int main (int argc, char *argv[])
     /***********************************************************/
     /* Call poll() and wait 3 minutes for it to complete.      */
     /***********************************************************/
-    printf("Waiting on poll()...\n");
+    my_str("Waiting on poll()...\n");
     rc = poll(fds, nfds, timeout);
 
     /***********************************************************/
@@ -136,16 +134,6 @@ int main (int argc, char *argv[])
       perror("  poll() failed");
       break;
     }
-
-    /***********************************************************/
-    /* Check to see if the 3 minute time out expired.          */
-    /***********************************************************/
-    if (rc == 0)
-    {
-      printf("  poll() timed out.  End program.\n");
-      break;
-    }
-
 
     /***********************************************************/
     /* One or more descriptors are readable.  Need to          */
@@ -162,26 +150,12 @@ int main (int argc, char *argv[])
       if(fds[i].revents == 0)
         continue; // nothing intersting on this fd
 
-      /**
-      *********************************************************
-      * If revents is not POLLIN, it's an unexpected result,  *
-      * log and end the server.                               *
-      *********************************************************
-      if(fds[i].revents != POLLIN)
-      {
-        printf("  Error! revents = %d\n", fds[i].revents);
-        end_server = TRUE;
-        break;
-
-      }
-      **/
-
       if (fds[i].fd == listen_sd)
       {
         /*******************************************************/
         /* Listening descriptor is readable.                   */
         /*******************************************************/
-        printf("  Listening socket is readable\n");
+        my_str("Listening socket is readable\n");
 
         /*******************************************************/
         /* Accept all incoming connections that are            */
@@ -202,8 +176,7 @@ int main (int argc, char *argv[])
           {
             if (errno != EWOULDBLOCK)
             {
-              perror("  accept() failed");
-              end_server = TRUE;
+              perror("accept() failed");
             }
             break;
           }
@@ -212,7 +185,7 @@ int main (int argc, char *argv[])
           /* Add the new incoming connection to the            */
           /* pollfd structure                                  */
           /*****************************************************/
-          printf("  New incoming connection - %d\n", new_sd);
+          my_str("New incoming connection");
           if (nfds+1 > fdsSize) {
             fdsSize *= 2;
             fds = (struct pollfd*) realloc(fds, fdsSize*sizeof(struct pollfd));
@@ -251,145 +224,116 @@ int main (int argc, char *argv[])
 
       else
       {
-        printf("  Descriptor %d is readable\n", fds[i].fd);
-        //close_conn = FALSE;
-        /*******************************************************/
-        /* Receive all incoming data on this socket            */
-        /* before we loop back and call poll again.            */
-        /*******************************************************/
+        my_str("Can read\n");
 
-        do
+        /*****************************************************/
+        /* Receive data on this connection until the         */
+        /* recv fails with EWOULDBLOCK. If any other         */
+        /* failure occurs, we will close the                 */
+        /* connection.                                       */
+        /*****************************************************/
+        bzero(read,1024);
+        rc = recv(fds[i].fd, read, 1024, 0);
+        if (rc < 0)
         {
-          /*****************************************************/
-          /* Receive data on this connection until the         */
-          /* recv fails with EWOULDBLOCK. If any other         */
-          /* failure occurs, we will close the                 */
-          /* connection.                                       */
-          /*****************************************************/
-          bzero(read,1024);
-          rc = recv(fds[i].fd, read, 1024, 0);
-          if (rc < 0)
+          if (errno != EWOULDBLOCK)
           {
-            if (errno != EWOULDBLOCK)
-            {
-              perror("  recv() failed");
-              //close_conn = TRUE;
-            }
-            break;
+            perror("  recv() failed");
           }
-
-          /*****************************************************/
-          /* Check to see if the connection has been           */
-          /* closed by the client                              */
-          /*****************************************************/
-          if (rc == 0)
-          {
-            printf("  Connection closed\n");
-            //close_conn = TRUE;
-            break;
-          }
-
-          /*****************************************************/
-          /* Data was received                                 */
-          /*****************************************************/
-          len = rc;
-          printf("  %d bytes received\n", len);
-
-          /*****************************************************/
-          /* Echo the data back to the clients                 */
-          /*****************************************************/
-          //if (/un) {
-          //
-          //}
-
-          if (my_strcmp("/exit\n", read) == 0) { // /exit case
-            close(fds[i].fd);
-            //remove from llist
-            remove_node_at(lhead, i);
-            // remove from fds
-            fds[i].fd = -1;
-            for (i = 0; i < nfds; i++)
-            {
-              if (fds[i].fd == -1)
-              {
-                for(j = i; j < nfds; j++)
-                {
-                  fds[j].fd = fds[j+1].fd;
-                }
-                i--;
-                nfds--;
-              }
-            }
-          }
-
-          else { // no special commands, just send as [un]: [message]
-            // Get the username of the person sending the message
-            char* un = (char *) elem_at(*lhead, i);
-            printf("This is the sending un:%s\n", un);
-            bzero(bigboi, 2050);
-            // Append the username, colon, space, and message in one string
-            my_strcat(bigboi, un);
-            //printf("%s\n", bigboi);
-            my_strcat(bigboi, ": ");
-            //printf("%s\n", bigboi);
-            my_strcat(bigboi, read);
-            printf("%s\n", bigboi);
-
-            for (int j=1;j<nfds;j++) {
-              rc = send(fds[j].fd, bigboi, my_strlen(bigboi), 0);
-              if (rc < 0)
-              {
-                perror("  send() failed");
-                break;
-              }
-            }
-            bzero(bigboi, 2050);
-          }
-        } while(1==2);
-
-        /**
-        *******************************************************
-        * If the close_conn flag was turned on, we need       *
-        * to clean up this active connection. This            *
-        * clean up process includes removing the              *
-        * descriptor.                                         *
-        *******************************************************
-        if (close_conn)
-        {
-          close(fds[i].fd);
-          fds[i].fd = -1;
-          compress_array = TRUE;
+          break;
         }
-        **/
+
+        /*****************************************************/
+        /* Data was received                                 */
+        /*****************************************************/
+        len = rc;
+        printf("%d bytes received\n", len);
+
+        /*****************************************************/
+        /* Echo the data back to the clients                 */
+        /*****************************************************/
+        
+        if (my_strncmp("/nick ", read, 6) == 0) { // change username
+          //my_str("you're trying to change your username!\n");
+          char *point = read;
+          for (int i = 0; i<6; i++) {
+            point++;
+          }
+          my_str(point); // here it points to the new UN
+          my_rmws(point); 
+          if (my_strlen(point) == 0) {
+            send(fds[i].fd, "That username is invalid\n", 50, 0);
+          }
+          else {
+            struct s_node* cur = node_at(*lhead, i);
+            char* new_name = my_strdup(point);
+            cur->elem = new_name;
+          }
+        }
+
+        else if (my_strcmp("/exit\n", read) == 0) { // /exit case
+          close(fds[i].fd);
+          //remove from llist
+          remove_node_at(lhead, i);
+          // remove from fds
+          fds[i].fd = -1;
+          for (i = 0; i < nfds; i++)
+          {
+            if (fds[i].fd == -1)
+            {
+              for(j = i; j < nfds; j++)
+              {
+                fds[j].fd = fds[j+1].fd;
+              }
+              i--;
+              nfds--;
+            }
+          }
+        }
+
+        else if (my_strncmp("/me ", read, 4) == 0) {
+          char* un = (char *) elem_at(*lhead, i);
+          bzero(bigboi, 2050);
+          my_strcat(bigboi, un);
+          // change read from "/me [text" -> [text]
+          char *point = read;
+          for (int i = 0; i<3; i++) {
+            point++;
+          }
+          my_strcat(bigboi, point);
+          for (int j=1;j<nfds;j++) {
+            rc = send(fds[j].fd, bigboi, my_strlen(bigboi), 0);
+            if (rc < 0)
+            {
+              perror("send() failed");
+              break;
+            }
+          }
+          bzero(bigboi, 2050);
+        }
+
+        else { // no special commands, just send as [un]: [message]
+          // Get the username of the person sending the message
+          char* un = (char *) elem_at(*lhead, i);
+          bzero(bigboi, 2050);
+          // Append the username, colon, space, and message in one string
+          my_strcat(bigboi, un);
+          my_strcat(bigboi, ": ");
+          my_strcat(bigboi, read);
+
+          for (int j=1;j<nfds;j++) {
+            rc = send(fds[j].fd, bigboi, my_strlen(bigboi), 0);
+            if (rc < 0)
+            {
+              perror("send() failed");
+              break;
+            }
+          }
+          bzero(bigboi, 2050);
+        } // end of sending
 
       }  /* End of existing connection is readable             */
-    } /* End of loop through pollable descriptors              */
-
-    /**
-    ***********************************************************
-    * If the compress_array flag was turned on, we need       *
-    * to squeeze together the array and decrement the number  *
-    * of file descriptors. We do not need to move back the    *
-    * events and revents fields because the events will always*
-    * be POLLIN in this case, and revents is output.          *
-    ***********************************************************
-    if (compress_array)
-    {
-      compress_array = FALSE;
-      for (i = 0; i < nfds; i++)
-      {
-        if (fds[i].fd == -1)
-        {
-          for(j = i; j < nfds; j++)
-          {
-            fds[j].fd = fds[j+1].fd;
-          }
-          i--;
-          nfds--;
-        }
-      }
-    }
-    **/
+    } // End of fds loop
 
   } while (end_server == FALSE); /* End of serving running.    */
 

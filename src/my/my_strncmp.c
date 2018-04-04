@@ -12,10 +12,7 @@ int my_strncmp(char *a, char *b, int n) {
 	if (n<1) {
 		return 0;
 	}
-	if (a && b) {
-		if (n >= my_strlen(a) || n >= my_strlen(b)) { // if comping whole string anyway
-			return my_strcmp(a,b); // call thing I already wrote
-		}
+	while (a && b) {
 		for (int i = 1; i < n; i++) { // compares n chars
 			if (*a == *b) {
 				a++;

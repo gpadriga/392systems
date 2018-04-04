@@ -118,13 +118,16 @@ int main (int argc, char *argv[])
   /* Loop waiting for incoming connects or for incoming data   */
   /* on any of the connected sockets.                          */
   /*************************************************************/
-  do
-  {
+  do {
     /***********************************************************/
     /* Call poll() and wait 3 minutes for it to complete.      */
     /***********************************************************/
     my_str("Waiting on poll()...\n");
+    my_str("before poll: ");
+    debug_string(*lhead);
     rc = poll(fds, nfds, timeout);
+    my_str("\n After poll: ");
+    debug_string(*lhead);    
 
     /***********************************************************/
     /* Check to see if the poll call failed.                   */
@@ -140,8 +143,7 @@ int main (int argc, char *argv[])
     /* determine which ones they are.                          */
     /***********************************************************/
     current_size = nfds;
-    for (i = 0; i < current_size; i++)
-    {
+    for (i = 0; i < current_size; i++) {
       /*********************************************************/
       /* Loop through to find the descriptors that returned    */
       /* POLLIN and determine whether it's the listening       */
@@ -150,8 +152,7 @@ int main (int argc, char *argv[])
       if(fds[i].revents == 0)
         continue; // nothing intersting on this fd
 
-      if (fds[i].fd == listen_sd)
-      {
+      if (fds[i].fd == listen_sd) {
         /*******************************************************/
         /* Listening descriptor is readable.                   */
         /*******************************************************/
@@ -162,8 +163,7 @@ int main (int argc, char *argv[])
         /* queued up on the listening socket before we         */
         /* loop back and call poll again.                      */
         /*******************************************************/
-        do
-        {
+        do {
           /*****************************************************/
           /* Accept each incoming connection. If               */
           /* accept fails with EWOULDBLOCK, then we            */
@@ -222,8 +222,8 @@ int main (int argc, char *argv[])
       /* existing connection must be readable                  */
       /*********************************************************/
 
-      else
-      {
+      else {
+
         my_str("Can read\n");
 
         /*****************************************************/
@@ -267,7 +267,22 @@ int main (int argc, char *argv[])
           else {
             struct s_node* cur = node_at(*lhead, i);
             char* new_name = my_strdup(point);
+            my_str(new_name);
+            free(cur->elem);
             cur->elem = new_name;
+            /**
+            remove_node_at(lhead, i);
+            char new_name[my_strlen(point)];
+            bzero(new_name, my_strlen(point));
+            my_strcpy(new_name, point);
+            struct s_node* newun = new_node(new_name, NULL, NULL);
+            add_node_at(newun, lhead, i);
+            **/
+            my_str("This is what the name is now: ");
+            print_string(cur);
+            debug_string(*lhead);
+            my_str("\n");
+
           }
         }
 
@@ -312,6 +327,10 @@ int main (int argc, char *argv[])
           bzero(bigboi, 2050);
         }
 
+        else if (read[0] == '/') {
+          send(fds[i].fd, "Why would you even try that?\n", 50, 0);
+        }
+
         else { // no special commands, just send as [un]: [message]
           // Get the username of the person sending the message
           char* un = (char *) elem_at(*lhead, i);
@@ -322,6 +341,7 @@ int main (int argc, char *argv[])
           my_strcat(bigboi, read);
 
           for (int j=1;j<nfds;j++) {
+            debug_string(*lhead);
             rc = send(fds[j].fd, bigboi, my_strlen(bigboi), 0);
             if (rc < 0)
             {
@@ -330,7 +350,7 @@ int main (int argc, char *argv[])
             }
           }
           bzero(bigboi, 2050);
-        } // end of sending
+        }
 
       }  /* End of existing connection is readable             */
     } // End of fds loop

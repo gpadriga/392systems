@@ -1,0 +1,73 @@
+/*
+NCURSES.shit
+
+You'll need to import these:
+*/
+
+#include <stdlib.h>
+#include <ncurses.h>
+
+/* in your makefile you also need to add this at the end of the CFLAGS */
+-lncurses
+
+/* To start a NCURSES window (this is what makes the terminal window blank and not operate like bash), use this: */
+
+initscr();
+
+/* Here are some other things I did on create: */
+
+keypad(stdscr, TRUE);   /* enable keyboard mapping */
+raw();					/* enables raw input, which we want */
+nonl();                 /* tell curses not to do NL->CR/NL on output (this was in an example idk it works with it) */
+cbreak();               /* take input chars one at a time, no wait for \n */
+noecho();               /* do not echo input */
+curs_set(0);            /* hide cursor */
+
+/* Handy things you'll need: */
+
+/*TO END AN NCURSES SESSION*/
+endwin();
+/* then print out your results and they'll appear in the normal terminal, then specify exit(0) */
+
+/* TO CLEAR THE SCREEN */
+clear();
+
+int termRows, termCols;
+getmaxyx(stdscr, termRows, termCols); 
+/*stdscr is built in you don't need to define it, 
+this does what read does and puts the current number of rows and columns into the specified variables */
+
+int ch = getch(); /* this waits for a key input, then you can check ch == stuff and handle arrow keys */
+
+/* speaking of arrow keys, NCURSES has some great built in things */
+
+/* ch == KEY_LEFT || ch == KEY_RIGHT || ch == KEY_UP || ch == KEY_DOWN all work as expected */
+
+/* ch == ' ' checks for spacebar. ch == KEY_BACKSPACE works for backspace. */
+/* HOWEVER KEY_ENTER exists but doesn't work. \n didn't work for me either. */
+
+/* through testing and printing out ch, I learned that, at least on the linux lab: */
+/* ch == 10 (aka '\n' or 0xa) checks for the enter key pressed (13 may or may not work) */
+/* ch == 27 checks for the ESC pressed but has a full second delay for reasons relating to "you're not supposed to use the ESC key" */
+
+/* ABSOLUTELY NEEDED */
+
+/* By default the "cursor" is at 0, 0 (given as row, col aka y, x) */
+addch('a');
+/* that will add the character a to 0, 0, then automatically move the cursor to 0, 1 */
+
+addstr("Hello world!");
+/* that will add the string "Hello world!" to wherever the cursor is, moving it to the end of that line. It might wrap if you let it get to the end of the window and cause problems. */
+
+move(y, x);
+/* THIS IS A BIG ONE, and it lets you manually change rows to print each option to a row, or move say 25 columns right to start printing to a new column */
+
+/* HIGHLIGHTING AND UNDERLINING */
+/* This is super easy. Before you call addch or addstr, use */
+attron(A_UNDERLINE);
+/*this will make text after it underlined. To turn off underlining, use */
+attroff(A_UNDERLINE);
+
+/* for highlighting, the commands are */
+attron(A_STANDOUT);
+attroff(A_STANDOUT);

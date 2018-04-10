@@ -9,6 +9,6 @@ clean:
 	rm -f $(OBJS)
 
 fclean: clean
-	rm -f ncurses
+	rm -f myselect
 
 re: fclean all

@@ -1,14 +1,17 @@
 #include <stdlib.h>
 #include <ncurses.h>
 #include <string.h>
+#include <math.h>
 
 int row = 0, col=0, sel = 1, maxLen = 0;
-int curStrLen, colNum=1;
+int curStrLen, colNum=1, rowNum = 1;
+
 
 void print(int argc, char * argv[]) {
+	int colNum = col/(maxLen+1); // number of columns that can fit onscreen
+	rowNum = (int)ceil((double)(argc-1)/(double)colNum);
 	// no fit print
-	if (col < maxLen) {
-		row=row; // I'm bad and I should feel bad
+	if (col < maxLen || rowNum > row) {
 		erase(); // clear what was there
 		printw("please enlarge the window\n");
 	}
@@ -16,7 +19,6 @@ void print(int argc, char * argv[]) {
 	// it fit so print
 	else {
 		erase();
-		int colNum = col/(maxLen+1); // number of columns that can fit onscreen
 		int colIndex = 0;
 		for (int i = 1; i < argc; i++) { // print everything in argv
 			if (colIndex >= colNum) { 
@@ -47,10 +49,14 @@ int main(int argc, char *argv[]) {
 	initscr();
 	keypad(stdscr, TRUE);
 	raw();
+	noecho();
+	scrollok(stdscr, FALSE);
 	char input;
 
-	if (argc < 2) {
-		// look @ dylans ques
+	// Array to store values that are highlighted
+	int highlights[argc];
+	for (int i = 0; i < argc; i++) {
+		highlights[i] = 0;
 	}
 
 	// find size of longest filename
@@ -86,7 +92,7 @@ int main(int argc, char *argv[]) {
 					sel -= colNum;
 				}
 				else { // in first row
-					if (sel + colNum < argc) {
+					while (sel + colNum < argc) {
 						sel += colNum;
 					}
 				}
@@ -94,17 +100,19 @@ int main(int argc, char *argv[]) {
 			}
 
 			else if (input == 2) { // down
-				if (sel < argc-1 - colNum) { // not in last row
-					sel -= colNum;
+				if (sel + colNum < argc) { // not in last row
+					sel += colNum;
 				}
-				else {
-					sel = (argc - 1 - sel + colNum);
+				else { // in the last row
+					while (sel > colNum) {
+						sel -= colNum;
+					}
 				}
 				print(argc, argv);
 			}
 
 			else if (input == 4) { // left
-				if (sel > 1 && (!(sel % colNum == 1))) { //not on extreme left
+				if (colNum > 1 && sel > 1 && (!(sel % colNum == 1))) { //not on extreme left
 					sel--;
 					print(argc, argv);
 				}
@@ -115,6 +123,9 @@ int main(int argc, char *argv[]) {
 					sel++;
 					print(argc, argv);
 				}
+			}
+			else if (input == 32) { // space bar
+				if (highlights[sel])
 			}
 		}
 	}

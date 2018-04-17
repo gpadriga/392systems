@@ -1,5 +1,6 @@
 /*
-NCURSES.shit
+NCURSES.shit 
+
 
 You'll need to import these:
 */
@@ -7,8 +8,30 @@ You'll need to import these:
 #include <stdlib.h>
 #include <ncurses.h>
 
+/*
+1.1, using NCURSES on the Linux Lab for CS392 2018S
+
+NCURSES is not installed by default on the Linux Lab. To make it work, make sure you're sshing into
+gits.srcit.stevens-tech.edu
+
+This specific server has Jared's folder that has certain files made public for you. In your makefile, add the CFLAGS:
+
+-I/home/jbass/ncurses/include
+-L/home/jbass/ncurses/lib
+*/
+
 /* in your makefile you also need to add this at the end of the CFLAGS */
 -lncurses
+
+/* 
+IMPORTANT
+when using Jared's NCURSES on gits, once you've compiled but BEFORE you run the program,
+please type the command
+
+export TERMINFO=/lib/terminfo
+
+which will give NCURSES the info it needs.	
+*/
 
 /* To start a NCURSES window (this is what makes the terminal window blank and not operate like bash), use this: */
 

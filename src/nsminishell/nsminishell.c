@@ -20,62 +20,77 @@ int main() {
 	initscr();
 	keypad(stdscr, TRUE);
 	raw();
+	noecho();
 	// signals definition
 	signal(SIGINT, doNothing);
+	start_color();
+	init_pair(1, COLOR_GREEN, COLOR_BLACK);
+	init_pair(2, COLOR_CYAN, COLOR_BLACK);
 	while (1) {
 		// print prompt and current working directory
 		char cwd[1024];
-		int i = 0;
+		int i = -1;
+		attron(COLOR_PAIR(1));
 		printw("MINISHELL: ");
-		printw(getcwd(cwd, sizeof(cwd))); 
+		attroff(COLOR_PAIR(1));
+		attron(COLOR_PAIR(2));
+		printw(getcwd(cwd, sizeof(cwd)));
 		printw(" $: ");
+		attroff(COLOR_PAIR(2));
 		int buff = 10;
 		char* input = malloc(buff*sizeof(char));
 		int seen = 0;
 		char* begin = input;
-		read(0, input, 1);
 		seen++;
 		char * newInput;
-		while (input[i] != '\n') {
+		while (input[i] != 10) {
 			if (seen >= buff) {
 				buff*=2;
 				newInput = (char *) realloc(begin, buff*sizeof(char));
 				begin = newInput;
 			}
-			input++;
+			if (input[i] == 27) { // esc
+				endwin();
+				exit(1);
+			}
+			i++;
 			seen++;
 			input[i] = getch();
-			i++;
+			if (input[i] != 10) {
+				printw("%c", input[i]);
+			}
 		}
+		printw("\n");
 
+		/**
 		char ** dir = my_str2vect(begin);
 		int sizeDir = my_vectsize(dir);
 
 		// if nothing is entered
 		if (sizeDir == 0) {
-			my_str("Please enter something, type help if you don't know anything\n");
+			printw("Please enter something, type help if you don't know anything\n");
 		}
 
 		// cd command
 		else if (my_strcmp(dir[0], "cd") == 0) { // cd somepath
 			if (chdir(dir[1]) == -1) {
-				my_str("Either that directory doesn't exist, or you're not allowed to access it\n");
+				printw("Either that directory doesn't exist, or you're not allowed to access it\n");
 			}
 		}
 
 		// help
 		else if (my_strcmp(dir[0], "help") == 0 && sizeDir == 1) {
-			my_str("Here are things you can do: \n");
-			my_str("cd [directory] : Changes current working directory to what's specified\n");
-			my_str("ls : List the files and subdirectories in your current directory\n");
-			my_str("./[an executable] [some args] : Runs the executable with the given arguments\n");
-			my_str("exit : Exits the minishell\n");
-			my_str("help : You're already here!\n");
+			printw("Here are things you can do: \n");
+			printw("cd [directory] : Changes current working directory to what's specified\n");
+			printw("ls : List the files and subdirectories in your current directory\n");
+			printw("./[an executable] [some args] : Runs the executable with the given arguments\n");
+			printw("exit : Exits the minishell\n");
+			printw("help : You're already here!\n");
 		}
 
 		// exit
 		else if (my_strcmp(dir[0], "exit") == 0 && sizeDir == 1) {
-			my_str("That's all folks!\n");
+			printw("That's all folks!\n");
 			return 1;
 		}
 
@@ -88,7 +103,7 @@ int main() {
 			else if (pid == 0) { // child process
 				signal(SIGINT, doQuit);
 				if (execvp(dir[0], dir) == -1) {
-					my_str("Can't do that\n");
+					printw("Can't do that\n");
 					exit(1);
 				}
 				else {
@@ -99,5 +114,6 @@ int main() {
 				wait(NULL);
 			}
 		}
-	}
+		**/
+	} // end of while
 }

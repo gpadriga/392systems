@@ -17,10 +17,12 @@ void doQuit(int n) {
 }
 
 int main() {
+	int y,x;
 	initscr();
 	keypad(stdscr, TRUE);
 	raw();
 	noecho();
+	scrollok(stdscr,1);
 	// signals definition
 	signal(SIGINT, doNothing);
 	start_color();
@@ -29,13 +31,13 @@ int main() {
 	while (1) {
 		// print prompt and current working directory
 		char cwd[1024];
-		int i = -1;
+		int i = 0;
 		attron(COLOR_PAIR(1));
-		printw("MINISHELL: ");
+		addstr("MINISHELL: ");
 		attroff(COLOR_PAIR(1));
 		attron(COLOR_PAIR(2));
-		printw(getcwd(cwd, sizeof(cwd)));
-		printw(" $: ");
+		addstr(getcwd(cwd, sizeof(cwd)));
+		addstr(" $: ");
 		attroff(COLOR_PAIR(2));
 		int buff = 10;
 		char* input = malloc(buff*sizeof(char));
@@ -43,26 +45,43 @@ int main() {
 		char* begin = input;
 		seen++;
 		char * newInput;
-		while (input[i] != 10) {
+		char tempGet;
+		while (1) {
+			tempGet = getch();
 			if (seen >= buff) {
 				buff*=2;
 				newInput = (char *) realloc(begin, buff*sizeof(char));
 				begin = newInput;
 			}
-			if (input[i] == 27) { // esc
+			else if (tempGet == 27) { // esc
 				endwin();
 				exit(1);
 			}
-			i++;
-			seen++;
-			input[i] = getch();
-			if (input[i] != 10) {
-				printw("%c", input[i]);
+			else if (i>0 && tempGet == 7) { // backspace
+				getyx(stdscr, y, x);
+				wmove(stdscr,y, x-1);
+				refresh();
+				delch();
+				input[i]='\0';
+				seen--;
+				i--;
+				}
+			else if (tempGet == 7) {
+				continue;
+			}
+			else if (tempGet != 10) { // if not enter
+				input[i] = tempGet;
+				addch(input[i]);
+				i++;
+				seen++;
+			}
+			else {
+				break;
 			}
 		}
-		printw("\n");
 
-		/**
+		addstr("\n");
+
 		char ** dir = my_str2vect(begin);
 		int sizeDir = my_vectsize(dir);
 
@@ -97,23 +116,26 @@ int main() {
 		// no command matches or trying to exec or ls
 		else {
 			pid_t pid;
+			char ans[9000];
 			if ((pid = fork()) < 0) {
 				perror("Child fork didn't work\n"), exit(1);
 			}
 			else if (pid == 0) { // child process
 				signal(SIGINT, doQuit);
+				dup2(1, 3000);
 				if (execvp(dir[0], dir) == -1) {
 					printw("Can't do that\n");
 					exit(1);
 				}
 				else {
-					exit(1);
+					read(3000, ans, 9000);
+					addstr(ans);
 				}
 			}
 			else { // parent
 				wait(NULL);
 			}
 		}
-		**/
+	
 	} // end of while
 }

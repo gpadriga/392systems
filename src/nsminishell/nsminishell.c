@@ -45,7 +45,7 @@ int main() {
 		char* begin = input;
 		seen++;
 		char * newInput;
-		char tempGet;
+		int tempGet;
 		while (1) {
 			tempGet = getch();
 			if (seen >= buff) {
@@ -57,7 +57,25 @@ int main() {
 				endwin();
 				exit(1);
 			}
-			else if (i>0 && tempGet == 7) { // backspace
+			else if (tempGet == KEY_LEFT && i>0) {
+				getyx(stdscr, y, x);
+				wmove(stdscr, y, x-1);
+				refresh();
+				i--;
+			}
+			else if (tempGet == KEY_LEFT) {
+				continue;
+			}
+			else if (tempGet == KEY_RIGHT && i < seen-1) {
+				getyx(stdscr, y, x);
+				wmove(stdscr, y, x+1);
+				refresh();
+				i++;
+			}
+			else if (tempGet == KEY_RIGHT) {
+				continue;
+			}
+			else if (i>0 && tempGet == KEY_BACKSPACE) { // backspace
 				getyx(stdscr, y, x);
 				wmove(stdscr,y, x-1);
 				refresh();
@@ -65,15 +83,30 @@ int main() {
 				input[i]='\0';
 				seen--;
 				i--;
-				}
-			else if (tempGet == 7) {
+			}
+			else if (tempGet == KEY_BACKSPACE) {
 				continue;
 			}
-			else if (tempGet != 10) { // if not enter
+			else if (tempGet != 10 && i == seen-1) { // if not enter and at end
 				input[i] = tempGet;
 				addch(input[i]);
 				i++;
 				seen++;
+			}
+			else if (tempGet != 10) { // not enter and in middle of string 
+				chtype chstr[9000];
+				inchstr(chstr);
+				char result[9000];
+				for (int i = 0; i<9000; i++) {
+					result[i]= chstr[i] & A_CHARTEXT;
+				}
+				addch(tempGet);
+				i++;
+				seen++;
+				getyx(stdscr, y, x);
+				wmove(stdscr,y, x+1);
+				refresh();
+				addstr(result);
 			}
 			else {
 				break;
@@ -81,6 +114,7 @@ int main() {
 		}
 
 		addstr("\n");
+		// parse the input using inchstr
 
 		char ** dir = my_str2vect(begin);
 		int sizeDir = my_vectsize(dir);

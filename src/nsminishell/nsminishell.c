@@ -18,6 +18,8 @@ void doQuit(int n) {
 
 int main() {
 	int y,x;
+	char clipboard[9000];
+	int clipi = 0;
 	initscr();
 	keypad(stdscr, TRUE);
 	raw();
@@ -28,6 +30,7 @@ int main() {
 	start_color();
 	init_pair(1, COLOR_GREEN, COLOR_BLACK);
 	init_pair(2, COLOR_CYAN, COLOR_BLACK);
+	int wu = 0;
 	while (1) {
 		// print prompt and current working directory
 		char cwd[1024];
@@ -87,6 +90,50 @@ int main() {
 			else if (tempGet == KEY_BACKSPACE) {
 				continue;
 			}
+
+			else if (tempGet == 1) { // CTRL-A
+				getyx(stdscr, y, x);
+				wmove(stdscr, y, x-i);
+				refresh();
+				i=0;
+			}
+			else if (tempGet == 5) { // CTRL-E
+				getyx(stdscr, y, x);
+				wmove(stdscr, y, x+(seen-i-1));
+				refresh();
+				i=seen-1;
+			}
+			else if (tempGet == 12) { // CTRL-L
+				getyx(stdscr, y, x);
+				wscrl(stdscr, y);
+				wmove(stdscr, 0, x);
+				refresh();
+			}
+			else if (tempGet == 23 && i>0) { // CTRL-W
+				if (wu != 1) {
+					wu = 1;
+					clipi = 0;
+				}
+				char readch=' ';
+				while ( (readch == ' ' || readch == '\t')  && i>0) {
+					char readch = inch() & A_CHARTEXT;
+					clipboard[clipi] = readch;
+					clipi++;
+					i--;
+					seen--;
+				}
+				while ( readch != ' ' && readch != '\t' && i>0) {
+					char readch = inch() & A_CHARTEXT;
+					clipboard[clipi] = readch;
+					clipi++;
+					i--;
+					seen--;
+				}
+			}
+
+			else if (tempGet == 23) {
+				continue;
+			}
 			else if (tempGet != 10 && i == seen-1) { // if not enter and at end
 				input[i] = tempGet;
 				addch(input[i]);
@@ -95,20 +142,24 @@ int main() {
 			}
 			else if (tempGet != 10) { // not enter and in middle of string 
 				chtype chstr[9000];
+				getyx(stdscr, y, x);
 				inchstr(chstr);
 				char result[9000];
-				for (int i = 0; i<9000; i++) {
-					result[i]= chstr[i] & A_CHARTEXT;
+				for (int j = 0; j<9000; j++) {
+					result[j]= chstr[j] & A_CHARTEXT; // convert bitmask to char
 				}
 				addch(tempGet);
 				i++;
-				seen++;
-				getyx(stdscr, y, x);
-				wmove(stdscr,y, x+1);
-				refresh();
+				seen++;	
 				addstr(result);
+				move(y,x+1);
+				refresh();
 			}
-			else {
+			else { // enter
+				getyx(stdscr, y, x);
+				wmove(stdscr, y, x+(seen-i-1));
+				refresh();
+				i=seen-1;
 				break;
 			}
 		}

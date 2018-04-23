@@ -16,7 +16,7 @@ int main() {
 
 	while(i < 2047) {
 		input[i] = getch();
-
+		printw("%c", input[i]);
 		if (input[i] == 23) {
 			endwin();
 			exit(1);

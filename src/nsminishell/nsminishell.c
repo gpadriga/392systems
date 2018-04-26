@@ -18,7 +18,6 @@ void doQuit(int n) {
 
 int main() {
 	int y,x;
-	char clipboard[9000];
 	int clipi = 0;
 	initscr();
 	keypad(stdscr, TRUE);
@@ -43,6 +42,7 @@ int main() {
 		addstr(" $: ");
 		attroff(COLOR_PAIR(2));
 		int buff = 10;
+		char clipboard[9000];
 		char* input = malloc(buff*sizeof(char));
 		int seen = 0;
 		char* begin = input;
@@ -56,7 +56,72 @@ int main() {
 				newInput = (char *) realloc(begin, buff*sizeof(char));
 				begin = newInput;
 			}
-			else if (tempGet == 27) { // esc
+			else if (tempGet == 23 && i>0) { // CTRL-W
+				if (wu != 1) {
+					wu = 1;
+					clipi = 0;
+					// reset clipboard 
+				}
+				char readch=' ';
+				while ( (readch == ' ')  && i>0) {
+					readch = inch() & A_CHARTEXT;
+					clipboard[clipi] = readch;
+					delch();
+					getyx(stdscr, y, x);
+					wmove(stdscr,y, x-1);
+					refresh();
+					i--;
+					clipi++;
+					seen--;
+				}
+				while ( readch != ' ' && readch != '\t' && i>0) {
+					readch = inch() & A_CHARTEXT;
+					clipboard[clipi] = readch;
+					if (readch != ' ' && i>0) {
+						delch();
+						getyx(stdscr, y, x);
+						wmove(stdscr,y, x-1);
+						refresh();
+					}
+					i--;
+					clipi++;
+					seen--;
+					//addstr("second loop");
+				}
+				//i++;
+				getyx(stdscr, y, x);
+				wmove(stdscr,y, x+1);
+				refresh();
+			}
+			else if (tempGet == 21 && i>0) { // CTRL-U cut whole line
+				if (wu != 1) {
+					wu = 1;
+					clipi = 0;
+					//reset clipboard 
+					bzero(clipboard, 9000);
+				}
+				char readch=' ';
+				while (i >=0) {
+					readch = inch() & A_CHARTEXT;
+					clipboard[clipi] = readch;
+					delch();
+					getyx(stdscr, y, x);
+					wmove(stdscr,y, x-1);
+					refresh();
+					i--;
+					clipi++;
+					seen--;
+				}
+				getyx(stdscr, y, x);
+				wmove(stdscr,y, x+1);
+				refresh();
+				//delch();
+				//delch();
+			}
+			else {
+				wu = 0;
+			}
+			if (tempGet == 27) { // esc
 				endwin();
 				exit(1);
 			}
@@ -90,7 +155,15 @@ int main() {
 			else if (tempGet == KEY_BACKSPACE) {
 				continue;
 			}
-
+			else if (tempGet == KEY_UP) {
+				continue;
+			}
+			else if (tempGet == KEY_DOWN) {
+				continue;
+			}
+			else if (tempGet == 21) {
+				continue;
+			}
 			else if (tempGet == 1) { // CTRL-A
 				getyx(stdscr, y, x);
 				wmove(stdscr, y, x-i);
@@ -109,25 +182,14 @@ int main() {
 				wmove(stdscr, 0, x);
 				refresh();
 			}
-			else if (tempGet == 23 && i>0) { // CTRL-W
-				if (wu != 1) {
-					wu = 1;
-					clipi = 0;
-				}
-				char readch=' ';
-				while ( (readch == ' ' || readch == '\t')  && i>0) {
-					char readch = inch() & A_CHARTEXT;
-					clipboard[clipi] = readch;
-					clipi++;
-					i--;
-					seen--;
-				}
-				while ( readch != ' ' && readch != '\t' && i>0) {
-					char readch = inch() & A_CHARTEXT;
-					clipboard[clipi] = readch;
-					clipi++;
-					i--;
-					seen--;
+
+			else if (tempGet == 25) { // CTRL-Y paste
+				// reverse clipboard contents
+				int length = my_strlen(clipboard);
+				seen += length;
+				i += length;
+				for (int j = length-1; j >=0; j--) {
+					addch(clipboard[j]);
 				}
 			}
 

@@ -6,6 +6,8 @@
 #include <sys/wait.h>
 #include <ncurses.h>
 #include <string.h>
+#include "list.h"
+#include <fcntl.h>
 
 /*	Gabrielle Padriga and Jordan Tantuico
 	We pledge our honor that we have abided by the Stevens Honor System
@@ -30,6 +32,20 @@ int main() {
 	init_pair(1, COLOR_GREEN, COLOR_BLACK);
 	init_pair(2, COLOR_CYAN, COLOR_BLACK);
 	int wu = 0;
+	struct s_node* initial = NULL;
+	struct s_node ** head = &initial;
+	//char readbuf [9000];
+
+	// load past history, if any
+	/*
+	file *FP = fopen(".nsmshistory", O_RDWR);
+	while(fgets(readbuf, 9000, eopen)) {
+		char * readstr = my_strdup(readbuf);
+		struct s_node* loadedcmd = new_node(readstr, NULL, NULL);
+		add_node(loadedcmd, head);
+	}
+	*/
+
 	while (1) {
 		// print prompt and current working directory
 		char cwd[1024];
@@ -49,6 +65,7 @@ int main() {
 		seen++;
 		char * newInput;
 		int tempGet;
+		int nodeIndex = 0;
 		while (1) {
 			tempGet = getch();
 			if (seen >= buff) {
@@ -155,11 +172,49 @@ int main() {
 			else if (tempGet == KEY_BACKSPACE) {
 				continue;
 			}
-			else if (tempGet == KEY_UP) {
-				continue;
+			else if (tempGet == KEY_UP) { // Up arrow
+				if (count_s_nodes(*head) ==0) {
+					continue;
+				}
+				else {
+					getyx(stdscr, y, x);
+					wmove(stdscr,y, x-i);
+					refresh();
+					wclrtoeol(stdscr);
+					getyx(stdscr, y, x);
+					if (nodeIndex != count_s_nodes(*head)) {
+						nodeIndex++;
+					}
+					char * toPrint= (char *) elem_at(*head, nodeIndex);
+					addstr(toPrint);
+					i = my_strlen(toPrint)-1;
+					seen = i;
+					//printw("%d\n",i);
+					//printw("%d\n",seen);
+					wmove(stdscr, y, x+i);
+					refresh();
+				}
 			}
 			else if (tempGet == KEY_DOWN) {
-				continue;
+				if (count_s_nodes(*head) ==0) {
+					continue;
+				}
+				else {
+					getyx(stdscr, y, x);
+					wmove(stdscr,y, x-i);
+					refresh();
+					wclrtoeol(stdscr);
+					getyx(stdscr, y, x);
+					if (nodeIndex != 0) {
+						nodeIndex--;
+					}
+					char * toPrint= (char *) elem_at(*head, nodeIndex);
+					addstr(toPrint);
+					i = my_strlen(toPrint);
+					seen = i;
+					wmove(stdscr, y, x+i);
+					refresh();
+				}
 			}
 			else if (tempGet == 21) {
 				continue;
@@ -176,7 +231,7 @@ int main() {
 				refresh();
 				i=seen-1;
 			}
-			else if (tempGet == 12) { // CTRL-L
+			else if (tempGet == 12) { // CTRL-L clear screen
 				getyx(stdscr, y, x);
 				wscrl(stdscr, y);
 				wmove(stdscr, 0, x);
@@ -226,15 +281,35 @@ int main() {
 			}
 		}
 
-		addstr("\n");
+		//addstr("\n");
 		// parse the input using inchstr
+		getyx(stdscr, y, x);
+		wmove(stdscr, y, x-i);
 
-		char ** dir = my_str2vect(begin);
+
+		chtype userIn[9000];
+		char userChars[9000];
+		inchnstr(userIn,seen);
+		i=0;
+		for (int j = 0; j<9000; j++) {
+			userChars[j]= userIn[j] & A_CHARTEXT; // convert bitmask to char
+		}
+		char * command = strdup(userChars);
+		struct s_node * userNode = new_node(command, NULL, NULL);
+		add_node(userNode, head);
+		nodeIndex=0;
+
+		addstr(userChars);
+		getyx(stdscr, y, x);
+		wmove(stdscr,y+1,0);
+		refresh();
+
+		char ** dir = my_str2vect(userChars);
 		int sizeDir = my_vectsize(dir);
 
 		// if nothing is entered
 		if (sizeDir == 0) {
-			printw("Please enter something, type help if you don't know anything\n");
+			printw("Please enter something, type help if you need it\n");
 		}
 
 		// cd command
@@ -256,31 +331,48 @@ int main() {
 
 		// exit
 		else if (my_strcmp(dir[0], "exit") == 0 && sizeDir == 1) {
+			int dwrite = open(".nsmshistory", O_RDWR);
+			for (int j = 0; j < count_s_nodes(*head); j++) {
+				write(dwrite, (char *) elem_at(*head, j), my_strlen( (char *) elem_at(*head, j) ));
+				write(dwrite, "\n", 1);
+			}
+			close(dwrite);
 			printw("That's all folks!\n");
+			endwin();
 			return 1;
+		}
+
+		else if (my_strncmp(dir[0], "$(", 1) == 0 && sizeDir == 1) {
+			addstr("Bonelli says: Implement me!\n");
 		}
 
 		// no command matches or trying to exec or ls
 		else {
 			pid_t pid;
+			int pipefd[2];
+			pipe(pipefd);
 			char ans[9000];
 			if ((pid = fork()) < 0) {
 				perror("Child fork didn't work\n"), exit(1);
 			}
 			else if (pid == 0) { // child process
 				signal(SIGINT, doQuit);
-				dup2(1, 3000);
+				close(pipefd[0]);
+				dup2(pipefd[1], 1);
+				close(pipefd[1]);
 				if (execvp(dir[0], dir) == -1) {
 					printw("Can't do that\n");
 					exit(1);
 				}
-				else {
-					read(3000, ans, 9000);
-					addstr(ans);
-				}
+				exit(1);
 			}
 			else { // parent
+				close(pipefd[1]);
 				wait(NULL);
+				read(pipefd[0], ans, 9000);
+				//addstr("\n");
+				addstr(ans);
+				bzero(ans, 9000);
 			}
 		}
 	

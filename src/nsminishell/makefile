@@ -4,7 +4,7 @@ CFLAGS = -Wall -Werror --pedantic -I../../include
 
 all: $(OBJS)
 	make -C../../src/my
-	gcc $(OBJS) -o nsminishell -I../../include -L../../lib -lmy -lncurses
+	gcc $(OBJS) -o nsminishell -I../../include -L../../lib -llist -lmy -lncurses
 
 clean:
 	rm -f $(OBJS) 

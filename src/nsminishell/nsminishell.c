@@ -56,7 +56,7 @@ int main() {
 		char cwd[1024];
 		int i = 0;
 		attron(COLOR_PAIR(1));
-		addstr("MINISHELL: ");
+		addstr("NSMINISHELL: ");
 		attroff(COLOR_PAIR(1));
 		attron(COLOR_PAIR(2));
 		addstr(getcwd(cwd, sizeof(cwd)));
@@ -70,7 +70,7 @@ int main() {
 		seen++;
 		char * newInput;
 		int tempGet;
-		int nodeIndex = 0;
+		int nodeIndex = -1;
 		while (1) {
 			//debug_string(*head);
 			tempGet = getch();
@@ -209,7 +209,7 @@ int main() {
 					refresh();
 					wclrtoeol(stdscr);
 					getyx(stdscr, y, x);
-					if (nodeIndex != 0) {
+					if (nodeIndex > 0) {
 						nodeIndex--;
 					}
 					char * toPrint= (char *) elem_at(*head, nodeIndex);
@@ -344,7 +344,7 @@ int main() {
 			return 1;
 		}
 
-		else if (my_strncmp(dir[0], "$(", 2) == 0 && sizeDir == 1) {
+		else if (my_strncmp(dir[0], "$(", 2) == 0) {
 			addstr("Bonelli says: Implement me!\n");
 		}
 

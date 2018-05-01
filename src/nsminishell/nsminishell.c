@@ -34,17 +34,22 @@ int main() {
 	int wu = 0;
 	struct s_node* initial = NULL;
 	struct s_node ** head = &initial;
-	//char readbuf [9000];
+	char readbuf [9000];
 
 	// load past history, if any
-	/*
-	file *FP = fopen(".nsmshistory", O_RDWR);
-	while(fgets(readbuf, 9000, eopen)) {
-		char * readstr = my_strdup(readbuf);
-		struct s_node* loadedcmd = new_node(readstr, NULL, NULL);
-		add_node(loadedcmd, head);
+	
+	FILE *fptr = fopen(".nsmshistory", "r+");
+	while (!feof(fptr)) {
+		if (fgets(readbuf, 9000, fptr) != NULL) {
+			char * readstr = my_strdup(readbuf);
+			struct s_node* loadedcmd = new_node(readstr, NULL, NULL);
+			add_node(loadedcmd, head);
+			bzero(readbuf, 9000);
+		}
+		else {
+			break;
+		}
 	}
-	*/
 
 	while (1) {
 		// print prompt and current working directory
@@ -67,6 +72,7 @@ int main() {
 		int tempGet;
 		int nodeIndex = 0;
 		while (1) {
+			//debug_string(*head);
 			tempGet = getch();
 			if (seen >= buff) {
 				buff*=2;
@@ -132,8 +138,6 @@ int main() {
 				getyx(stdscr, y, x);
 				wmove(stdscr,y, x+1);
 				refresh();
-				//delch();
-				//delch();
 			}
 			else {
 				wu = 0;
@@ -195,7 +199,7 @@ int main() {
 					refresh();
 				}
 			}
-			else if (tempGet == KEY_DOWN) {
+			else if (tempGet == KEY_DOWN) { // down arrow
 				if (count_s_nodes(*head) ==0) {
 					continue;
 				}
@@ -210,7 +214,7 @@ int main() {
 					}
 					char * toPrint= (char *) elem_at(*head, nodeIndex);
 					addstr(toPrint);
-					i = my_strlen(toPrint);
+					i = my_strlen(toPrint) - 1;
 					seen = i;
 					wmove(stdscr, y, x+i);
 					refresh();
@@ -331,18 +335,16 @@ int main() {
 
 		// exit
 		else if (my_strcmp(dir[0], "exit") == 0 && sizeDir == 1) {
-			int dwrite = open(".nsmshistory", O_RDWR);
 			for (int j = 0; j < count_s_nodes(*head); j++) {
-				write(dwrite, (char *) elem_at(*head, j), my_strlen( (char *) elem_at(*head, j) ));
-				write(dwrite, "\n", 1);
+				fprintf(fptr, "%s\n", (char *) elem_at(*head, j));
 			}
-			close(dwrite);
+			fclose(fptr);
 			printw("That's all folks!\n");
 			endwin();
 			return 1;
 		}
 
-		else if (my_strncmp(dir[0], "$(", 1) == 0 && sizeDir == 1) {
+		else if (my_strncmp(dir[0], "$(", 2) == 0 && sizeDir == 1) {
 			addstr("Bonelli says: Implement me!\n");
 		}
 

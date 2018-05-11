@@ -1,0 +1,4 @@
+exit 
+cd ../ 
+ls 
+hello world 

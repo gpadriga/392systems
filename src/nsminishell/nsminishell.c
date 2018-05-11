@@ -344,7 +344,7 @@ int main() {
 			return 1;
 		}
 
-		else if (my_strncmp(dir[0], "$(", 2) == 0) {
+		else if (my_strncmp(dir[0], "$(", 3) == 0) {
 			addstr("Bonelli says: Implement me!\n");
 		}
 
